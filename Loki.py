@@ -1,11 +1,19 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QHBoxLayout, QWidget, QSystemTrayIcon, QAction, QMenu, QDesktopWidget
+import threading
+
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QHBoxLayout, QWidget, QSystemTrayIcon, QAction, QMenu
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QSize
 
-class RoundedWindow(QMainWindow):
+from functions.listen import listen_user
+
+class Create_window(QMainWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.buttons()
+        self.listener = listen_user()
+        self.thread = threading.Thread(target=self.listener.listen)
+        self.thread.daemon = True  # Hace que el hilo sea un daemon thread
+        self.thread.start()
 
     def buttons(self):
         self.configure_window()
@@ -26,7 +34,7 @@ class RoundedWindow(QMainWindow):
                 border: none;
                 border-radius: 15px;
                 min-width: 30px;
-                max-width: 30px;
+                max-width: 30px; 
                 min-height: 30px;
                 max-height: 30px;
             }
@@ -94,7 +102,7 @@ class RoundedWindow(QMainWindow):
         central_widget.setLayout(layout)
         self.setCentralWidget(central_widget)
         
-    def minimize_to_tray(self):
+    def minimize_to_tray(self): ## Esta funcion crea el icono minimizado en la barra de tareas 
         self.hide()
         self.tray_icon = QSystemTrayIcon(self)
         self.tray_icon.setIcon(QIcon('resources/icons/icon.png'))
@@ -116,6 +124,6 @@ class RoundedWindow(QMainWindow):
             
 if __name__ == "__main__":
     app = QApplication([])
-    window = RoundedWindow()
+    window = Create_window()
     window.show()
     app.exec_()
